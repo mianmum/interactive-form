@@ -32,56 +32,36 @@ const showColors = (menu1, menu2) => {
         show(menu2.children[i]);
         menu2.selectedIndex = 0;
       } else if (menu1.value === "heart js" && menu2.children[i].textContent.includes(heartCheck)) {
-        show(menu2.children[i]);
-        menu2.selectedIndex = 3;
+          show(menu2.children[i]);
+          menu2.selectedIndex = 3;
+      } else {
+          menu2.selectedIndex = 0;
       };
     };
   };
 
-// REGISTER section
-// disable conflicting event options
-// const activities = document.querySelectorAll('fieldset.activities > label > input');
-// const disableConflicts = (options) => {
-//   for (let i = 0; i < options.length; i++) {
-//     options.disabled = false;
-//     if (options[i].checked) {
-//       switch(i){
-//           case 1:
-//             options[3].disabled;
-//             break;
-//           case 2:
-//             options[4].disabled;
-//             break;
-//           case 3:
-//             options[1].disabled;
-//             break;
-//           case 4:
-//             options[2].disabled;
-//             break;
-//       };
-//     };
-//   };
-// };
-
-const activField = document.querySelector('.activities');
-activField.addEventListener('change', e => {
+const activities = document.querySelector('.activities');
+activities.addEventListener('change', e => {
   if (e.target.checked === true) {
-    for (let i = 1; i <= 7; i++) {
-      if (activField.children[i].firstElementChild.checked === false
-        && activField.children[i].firstElementChild.textContent.includes("Tuesday 9am-12pm")
-        && e.target.textContent.includes("Tuesday 9am-12pm")
+    for (let i = 0; i < activities.children.length; i++) {
+      console.log(activities.children[i]);
+      if ( i > 0
+        && activities.children[i].firstElementChild.checked === false
+        && activities.children[i].textContent.includes("Tuesday 9am-12pm")
+        && e.target.parentNode.textContent.includes("Tuesday 9am-12pm")
       ) {
-        activField.children[i].firstElementChild.disabled === true;
-      } else if (activField.children[i].firstElementChild.checked === false
-        && activField.children[i].firstElementChild.textContent.includes("Tuesday 1pm-4pm")
-        && e.target.textContent.includes("Tuesday 1pm-4pm")
+        activities.children[i].firstElementChild.disabled = true;
+      } else if ( i > 0
+        && activities.children[i].firstElementChild.checked === false
+        && activities.children[i].textContent.includes("Tuesday 1pm-4pm")
+        && e.target.parentNode.textContent.includes("Tuesday 1pm-4pm")
       ) {
-        activField.children[i].firstElementChild.disabled === true;
+        activities.children[i].firstElementChild.disabled = true;
       };
     };
   } else {
     for (let i = 1; i <= 7; i++) {
-      activField.children[i].firstElementChild.disabled === false;
+      activities.children[i].firstElementChild.disabled = false;
     };
   };
 });
