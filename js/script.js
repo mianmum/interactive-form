@@ -1,6 +1,7 @@
 // function to give focus to first text input
-const firstInput = document.querySelector('input[type="text"]');
+const name = document.getElementById('name');
 const giveFocus = firstInput => firstInput.focus();
+giveFocus(name);
 
 
 // JOB ROLE section //
@@ -17,6 +18,10 @@ const showOrHide = (menu, textArea, val) => {
     hide(textArea)
   }
 };
+// call functions
+hide(jobText);
+jobMenu.onchange = () => showOrHide(jobMenu, jobText, "other");
+
 
 // T-SHIRT section //
 // only show relevant colours to selected design
@@ -40,6 +45,8 @@ const showColors = (menu1, menu2) => {
       };
     };
   };
+  // call functions
+designMenu.onchange = () => showColors(designMenu, colorMenu);
 
 // ACTIVITIES section //
 const activities = document.querySelector('.activities');
@@ -112,15 +119,97 @@ activities.addEventListener('change', e => {
 });
 
 // PAYMENT section //
-// set credit card as default selection
+// show or hide payment options depending on menu selection
+const paySection = document.querySelectorAll('fieldset')[3];
 const payMenu = document.querySelector('#payment');
-defaultIndex(payMenu, 1);
+const showHide = (index1, index2, index3, divs) => {
+  show(divs[index1]);
+  hide(divs[index2]);
+  hide(divs[index3]);
+}
+const payOptions = e => {
+    if ( e.target.value === "credit card" ) {
+      showHide(3, 4, 5, paySection.children);
+    } else if ( e.target.value === "paypal" ) {
+      showHide(4, 3, 5, paySection.children);
+    } else if ( e.target.value === "bitcoin" ) {
+      showHide(5, 3, 4, paySection.children);
+    };
+};
+payMenu.onchange = e => payOptions(e);
+// set default behaviour
+const defaultPay = menu => {
+  defaultIndex(payMenu, 1);
+  showHide(3, 4, 5, paySection.children);
+  menu.children[0].disabled = true;
+}
+defaultPay(payMenu);
 
-// functions to perform on page load
-document.addEventListener('DOMContentLoaded', () => {
-  giveFocus(firstInput);
-  hide(jobText);
-  jobMenu.onchange = () => showOrHide(jobMenu, jobText, "other");
-  designMenu.onchange = () => showColors(designMenu, colorMenu);
-  // activities.onchange = () => disableConflicts(activities);
-});
+// FORM VALIDATION //
+const email = document.getElementById('mail');
+const menus = document.querySelectorAll('select');
+const cardNum = document.getElementById('cc-num');
+const zip = document.getElementById('zip');
+const cvv = document.getElementById('cvv');
+const submit = document.querySelector('button[type="submit"]');
+// text field validator
+const addWrongClass = element => element.classList.add('wrong');
+const validateField = (field, regex) => {
+  if ( regex.test(field.value) === false ) {
+    addWrongClass(field);
+    return false;
+  };
+};
+// select menu validator
+const selectValidate = menus => {
+  for ( let i = 0; i < menus.length; i++ ) {
+    if ( i === 4 || i === 5 || i === 6 ) {
+      menus[i].setAttribute("required", "true");
+      if ( menus[i].value == "" ) {
+        addWrongClass(menus[i]);
+      };
+    };
+  };
+};
+// activities validator
+const actValidate = field => {
+  for ( var i = 1; i < field.children.length; i++ ) {
+    if ( field.children[i].firstElementChild.checked === true ) {
+      return true;
+    } else {
+      addWrongClass(field.children[i]);
+      return false;
+    };
+  };
+};
+
+// run validators
+const validator = () => {
+  validateField(name, /\w* \w*/);
+  validateField(email, /^[^@]+@[^@.]+\.[a-z]+$/i);
+  selectValidate(menus);
+  actValidate(activities);
+  if ( payMenu.selectedIndex === 1)  {
+    validateField(cardNum, /\d{13,16}/)
+    validateField(zip, /\d{5}/)
+    validateField(cvv, /\d{3}/)
+  };
+};
+// error checker
+const checkError = (elements) => {
+  for ( let i = 0; i < elements.length; i++ ) {
+    if ( elements[i].classList.contains('wrong') ) {
+      return true;
+    } else {
+      return false;
+    };
+  };
+};
+// event listener for Form
+const form = document.querySelector('form');
+form.onsubmit = e => {
+validator();
+if ( checkError(document.getElementsByTagName('*')) === true ) {
+  e.preventDefault();
+  };
+};

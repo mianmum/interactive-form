@@ -117,6 +117,10 @@ textarea {
   display: block;
 }
 
+.wrong {
+  border: 2px solid red;
+}
+
 /* =================================
   Page Styles
 ==================================== */
