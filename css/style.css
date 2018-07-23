@@ -121,6 +121,9 @@ textarea {
   border: 2px solid red;
 }
 
+.wrong-text {
+  color: red;
+}
 /* =================================
   Page Styles
 ==================================== */

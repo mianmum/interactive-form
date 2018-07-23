@@ -24,13 +24,26 @@ jobMenu.onchange = () => showOrHide(jobMenu, jobText, "other");
 
 
 // T-SHIRT section //
-// only show relevant colours to selected design
 const defaultIndex = (menu, index) => menu.selectedIndex = index;
 const designMenu = document.querySelector('#design');
 const colorMenu = document.querySelector('#color');
+const colorLabel = document.querySelector('label[for="color"]');
+// hide colour menu while design is unselected
+hide(colorMenu);
+hide(colorLabel);
+const hideMenu = (menu1, menu2, label) => {
+  if ( menu1.selectedIndex === 1 || menu1.selectedIndex === 2 ) {
+    console.log(menu1.selectedIndex);
+    show(menu2);
+    show(label);
+  }  else {
+    hide(menu2);
+    hide(label);
+  };
+};
 const punCheck = "JS Puns";
 const heartCheck = "JS shirt only"
-const toggle = element => element.classList.toggle('is-hidden');
+// only show relevant colours to selected design
 const showColors = (menu1, menu2) => {
     for (let i = 0; i < menu2.children.length; i++) {
       hide(menu2.children[i]);
@@ -46,8 +59,10 @@ const showColors = (menu1, menu2) => {
     };
   };
   // call functions
-designMenu.onchange = () => showColors(designMenu, colorMenu);
-
+designMenu.onchange = () => {
+  hideMenu(designMenu, colorMenu, colorLabel);
+  showColors(designMenu, colorMenu);
+};
 // ACTIVITIES section //
 const activities = document.querySelector('.activities');
 // function to disable conflicting checkboxes, and re-enable upon unchecking
@@ -84,7 +99,6 @@ const checkDisable = (e, element) => {
       };
     };
   };
-
 // create a running total cost
 let total = 0;
 const totalCost = (e) => {
@@ -105,7 +119,6 @@ const totalCost = (e) => {
   console.log(total);
   return total;
 };
-
 // create and append element to display total cost dynamically
 const costText = document.createElement('P');
 const costDisplay = (parent, child, e) => {
@@ -146,70 +159,89 @@ const defaultPay = menu => {
 defaultPay(payMenu);
 
 // FORM VALIDATION //
+const infoField = document.querySelector('fieldset');
 const email = document.getElementById('mail');
 const menus = document.querySelectorAll('select');
 const cardNum = document.getElementById('cc-num');
 const zip = document.getElementById('zip');
 const cvv = document.getElementById('cvv');
 const submit = document.querySelector('button[type="submit"]');
-// text field validator
 const addWrongClass = element => element.classList.add('wrong');
-const validateField = (field, regex) => {
+// create elements to display upon error
+const errorText = (message, fieldset) => {
+  let node = document.createElement('P');
+  node.innerHTML = message;
+  node.classList.add('wrong-text');
+  fieldset.parentNode.insertBefore(node, fieldset);
+};
+const nameError = "Please enter your first and last name.";
+const emailError = "Please enter a valid email address.";
+const cardError = "Please enter a number between 13 and 16 digits";
+const zipError = "Please enter a 5-digit number.";
+const cvvError = "Please enter a 3-digit number.";
+const activityError = "Please select at least one activity.";
+
+// text field validator
+const validateField = (field, regex, message) => {
   if ( regex.test(field.value) === false ) {
     addWrongClass(field);
+    errorText(message, field);
     return false;
+  } else {
+    return true;
+  }
+};
+// realtime email validation
+const rtText = document.createElement('P');
+rtText.innerHTML = emailError;
+rtText.classList.add('wrong-text');
+const appendError = (field, error) => field.parentNode.insertBefore(error, field);
+appendError(email, rtText);
+hide(rtText);
+const rtValidate = (field, regex) => {
+  if ( regex.test(field.value) === false && field.value.length <= 1 ) {
+    show(rtText);
+  } else if ( regex.test(field.value) === true ) {
+    hide(rtText);
   };
 };
-// select menu validator
-const selectValidate = menus => {
-  for ( let i = 0; i < menus.length; i++ ) {
-    if ( i === 4 || i === 5 || i === 6 ) {
-      menus[i].setAttribute("required", "true");
-      if ( menus[i].value == "" ) {
-        addWrongClass(menus[i]);
-      };
-    };
-  };
-};
+// email realtime validator
+email.oninput = () => rtValidate(email, /^[^@]+@[^@.]+\.[a-z]+$/i);
 // activities validator
-const actValidate = field => {
-  for ( var i = 1; i < field.children.length; i++ ) {
-    if ( field.children[i].firstElementChild.checked === true ) {
-      return true;
-    } else {
-      addWrongClass(field.children[i]);
-      return false;
+const actValidate = fieldset => {
+  for ( var i = 1; i < fieldset.children.length; i++ ) {
+    let check = true;
+    if ( fieldset.children[i].firstElementChild.checked === false ) {
+      check = false;
     };
+    if ( check = false ) {
+      addWrongClass(fieldset);
+      errorText(activityError, fieldset);
+      return false;
+    } else {
+      return true;
+    };      
   };
 };
-
 // run validators
 const validator = () => {
-  validateField(name, /\w* \w*/);
-  validateField(email, /^[^@]+@[^@.]+\.[a-z]+$/i);
-  selectValidate(menus);
-  actValidate(activities);
+  let check = true;
+  check = validateField(name, /\w* \w*/, nameError);
+  check = validateField(email, /^[^@]+@[^@.]+\.[a-z]+$/i, emailError);
+  check = actValidate(activities);
   if ( payMenu.selectedIndex === 1)  {
-    validateField(cardNum, /\d{13,16}/)
-    validateField(zip, /\d{5}/)
-    validateField(cvv, /\d{3}/)
+    let cardCheck = true;
+    cardCheck = validateField(cardNum, /\d{13,16}/, cardError);
+    cardCheck = validateField(zip, /\d{5}/, zipError);
+    cardCheck = validateField(cvv, /\d{3}/, cvvError);
+    check = cardCheck;
   };
-};
-// error checker
-const checkError = (elements) => {
-  for ( let i = 0; i < elements.length; i++ ) {
-    if ( elements[i].classList.contains('wrong') ) {
-      return true;
-    } else {
-      return false;
-    };
-  };
+  return check;
 };
 // event listener for Form
 const form = document.querySelector('form');
 form.onsubmit = e => {
-validator();
-if ( checkError(document.getElementsByTagName('*')) === true ) {
+if ( validator() === false ) {
   e.preventDefault();
   };
 };
