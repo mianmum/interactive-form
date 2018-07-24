@@ -199,44 +199,62 @@ const appendError = (field, error) => field.parentNode.insertBefore(error, field
 appendError(email, rtText);
 hide(rtText);
 const rtValidate = (field, regex) => {
-  if ( regex.test(field.value) === false && field.value.length <= 1 ) {
-    show(rtText);
-  } else if ( regex.test(field.value) === true ) {
+  if ( regex.test(field.value) === false ) {
+    if ( field.classList.contains('wrong') === false ) {
+      show(rtText);
+    };
+  } else {
     hide(rtText);
   };
 };
 // email realtime validator
-email.oninput = () => rtValidate(email, /^[^@]+@[^@.]+\.[a-z]+$/i);
+email.oninput = () => rtValidate(email, /^[^@]+@[^@.]+\.[a-z]{2,}$/i);
 // activities validator
 const actValidate = fieldset => {
-  for ( var i = 1; i < fieldset.children.length; i++ ) {
-    let check = true;
+  let check = true;
+  for ( let i = 1; i < fieldset.children.length; i++ ) {
     if ( fieldset.children[i].firstElementChild.checked === false ) {
       check = false;
     };
-    if ( check = false ) {
+    if ( check === false ) {
       addWrongClass(fieldset);
       errorText(activityError, fieldset);
       return false;
     } else {
       return true;
-    };      
+    };
   };
 };
 // run validators
 const validator = () => {
-  let check = true;
-  check = validateField(name, /\w* \w*/, nameError);
-  check = validateField(email, /^[^@]+@[^@.]+\.[a-z]+$/i, emailError);
-  check = actValidate(activities);
-  if ( payMenu.selectedIndex === 1)  {
-    let cardCheck = true;
-    cardCheck = validateField(cardNum, /\d{13,16}/, cardError);
-    cardCheck = validateField(zip, /\d{5}/, zipError);
-    cardCheck = validateField(cvv, /\d{3}/, cvvError);
-    check = cardCheck;
+  let check = 0;
+  if ( validateField(name, /\w* \w*/, nameError) === false) {
+    check += 1;
   };
-  return check;
+  if ( validateField(email, /^[^@]+@[^@.]+\.[a-z]{2,}$/i, emailError) === false ) {
+    check += 1;
+  };
+  if ( actValidate(activities) === false ) {
+    check += 1;S
+  };
+  if ( payMenu.selectedIndex === 1) {
+    let cardCheck = 0;
+    if ( validateField(cardNum, /\d{13,16}/, cardError) === false ) {
+      cardCheck += 1;
+    };
+    if ( validateField(zip, /\d{5}/, zipError) === false ) {
+      cardCheck += 1;
+    };
+    if ( validateField(cvv, /\d{3}/, cvvError) === false) {
+      cardCheck += 1;
+    };
+    if ( cardCheck > 0 ) {
+      check += 1;
+    };
+  };
+  if ( check > 0 ) {
+    return false;
+  };
 };
 // event listener for Form
 const form = document.querySelector('form');
