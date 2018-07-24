@@ -235,7 +235,7 @@ const validator = () => {
     check += 1;
   };
   if ( actValidate(activities) === false ) {
-    check += 1;S
+    check += 1;
   };
   if ( payMenu.selectedIndex === 1) {
     let cardCheck = 0;
